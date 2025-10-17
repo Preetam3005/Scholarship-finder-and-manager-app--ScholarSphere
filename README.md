@@ -1,18 +1,62 @@
-# Welcome to your Lovable project
+# 🎓 Scholarship Finder & Manager WebApp
 
-## Project info
+> **AI-Powered Platform to Discover, Apply & Manage Scholarships Seamlessly**
 
-**URL**: https://lovable.dev/projects/d2f2d13f-3a2e-4dd1-a56f-0606b54b36ab
+![License](https://img.shields.io/badge/license-MIT-blue.svg)
+![Tech](https://img.shields.io/badge/Built%20with-React%20%7C%20Node.js%20%7C%20MongoDB%20%7C%20Vite-orange)
+![Status](https://img.shields.io/badge/status-Active-success)
 
-## How can I edit this code?
+---
 
-There are several ways of editing your application.
+## 🚀 Overview
 
-**Use Lovable**
+**Scholarship Finder & Manager** is a web application designed to simplify how students **find, apply, and track scholarships**.  
+Using **AI-based recommendations**, it matches students to relevant scholarships based on their **academic profile, income status, and eligibility criteria**, reducing repetitive form-filling and making the process efficient.
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/d2f2d13f-3a2e-4dd1-a56f-0606b54b36ab) and start prompting.
+---
 
-Changes made via Lovable will be committed automatically to this repo.
+## ✨ Key Features
+
+- 🤖 **AI-based Scholarship Suggestion**  
+  Get personalized scholarship recommendations based on your uploaded details and eligibility.
+
+- ⚡ **One-Click Registration**  
+  Apply for any listed scholarship without re-uploading details multiple times.
+
+- 🧠 **Smart Eligibility Matching**  
+  Automatically filters scholarships according to your academic and financial background.
+
+- 📸 **Photo & Document Uploads**  
+  Upload your photograph (`.png`, `.jpg`, `.jpeg`), Aadhaar, ABC ID, and income certificate (if required).
+
+- 🇮🇳 **Indian Scholarships Database**  
+  Comes preloaded with authentic Indian government scholarships.
+
+- 📄 **Scholarship Detail PDF Download**  
+  Export scholarship information and your application status as a downloadable PDF.
+
+- 🔒 **Data Privacy & Verification**  
+  Ensures your personal details are verified and securely handled.
+
+---
+
+## 🛠️ Tech Stack
+
+| Layer | Technologies |
+|-------|---------------|
+| **Frontend** | React + Vite + Tailwind CSS / Vanilla CSS |
+| **Backend** | Node.js + Express.js |
+| **Database** | MongoDB / Firebase |
+| **AI Logic** | Eligibility Matching Algorithm (custom JS) |
+| **Authentication** | JWT or Firebase Auth |
+| **File Handling** | Multer / Cloudinary |
+| **PDF Generation** | jsPDF / PDFKit |
+
+---
+
+## 🧩 Project Structure
+
+
 
 **Use your preferred IDE**
 
