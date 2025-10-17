@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import type { TablesInsert } from '@/integrations/supabase/types';
 import { Button } from '@/components/ui/button';
@@ -94,7 +94,13 @@ const Register = ({ orgMode }: RegisterProps) => {
         abc_id_number: formData.get('abc_id_number') as string,
       };
 
-      profileSchema.parse(data);
+      const schema =
+        userType === 'organization'
+          ? organizationProfileSchema
+          : isOrgRegistration
+          ? orgProfileSchema
+          : studentProfileSchema;
+      schema.parse(data);
 
         let photoUrl = null;
         if (photo) {
