@@ -133,18 +133,19 @@ const Register = () => {
                 <Input id="gpa" name="gpa" type="number" step="0.01" min="0" max="10" required />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="category">Category *</Label>
+                <Label htmlFor="category">I am registering as *</Label>
                 <Select name="category" required>
                   <SelectTrigger>
-                    <SelectValue placeholder="Select category" />
+                    <SelectValue placeholder="Select type" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="General">General</SelectItem>
-                    <SelectItem value="SC">SC</SelectItem>
-                    <SelectItem value="ST">ST</SelectItem>
-                    <SelectItem value="OBC">OBC</SelectItem>
-                    <SelectItem value="Minority">Minority</SelectItem>
-                    <SelectItem value="Female">Female</SelectItem>
+                    <SelectItem value="Organization">Organization/Individual (Provide Scholarships)</SelectItem>
+                    <SelectItem value="General">Student - General</SelectItem>
+                    <SelectItem value="SC">Student - SC</SelectItem>
+                    <SelectItem value="ST">Student - ST</SelectItem>
+                    <SelectItem value="OBC">Student - OBC</SelectItem>
+                    <SelectItem value="Minority">Student - Minority</SelectItem>
+                    <SelectItem value="Female">Student - Female</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
