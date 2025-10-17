@@ -8,18 +8,15 @@ import { LogOut, GraduationCap } from 'lucide-react';
 import ScholarshipList from '@/components/ScholarshipList';
 import ApplicationsList from '@/components/ApplicationsList';
 import ProfileView from '@/components/ProfileView';
-import AdminPanel from '@/components/AdminPanel';
 import OrganizationDashboard from '@/components/OrganizationDashboard';
 import { Database } from '@/integrations/supabase/types';
 import { seedScholarships } from '@/scripts/seedScholarships';
-import { useUserRole } from '@/hooks/useUserRole';
 
 type Profile = Database['public']['Tables']['profiles']['Row'];
 
 const Dashboard = () => {
-  const { user, signOut } = useAuth();
+  const { user, signOut, userRole, loading: authLoading } = useAuth();
   const [profile, setProfile] = useState<Profile | null>(null);
-  const { role, loading: roleLoading } = useUserRole();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -55,12 +52,11 @@ const Dashboard = () => {
     initializeData();
   }, [user, navigate]);
 
-  if (!profile || roleLoading) {
+  if (!profile || authLoading) {
     return null;
   }
 
-  // Organizations get a different dashboard
-  if (role === 'organization') {
+  if (userRole === 'organization') {
     return (
       <div className="min-h-screen bg-background">
         <header className="border-b bg-card">

@@ -1,6 +1,6 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import AdminPanel from './AdminPanel';
-import ApplicationsManager from './ApplicationsManager';
+import { ScholarshipManager } from './ScholarshipManager';
+import { ApplicationReviewer } from './ApplicationReviewer';
 import ProfileView from './ProfileView';
 import { Database } from '@/integrations/supabase/types';
 import { useState } from 'react';
@@ -23,11 +23,11 @@ const OrganizationDashboard = ({ profile }: OrganizationDashboardProps) => {
       </TabsList>
 
       <TabsContent value="scholarships">
-        <AdminPanel />
+        <ScholarshipManager />
       </TabsContent>
 
       <TabsContent value="applications">
-        <ApplicationsManager />
+        <ApplicationReviewer />
       </TabsContent>
 
       <TabsContent value="profile">
