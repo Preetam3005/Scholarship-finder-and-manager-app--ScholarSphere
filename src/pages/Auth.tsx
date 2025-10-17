@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
-import { GraduationCap, Building2 } from 'lucide-react';
+import { GraduationCap } from 'lucide-react';
 import { z } from 'zod';
 
 const loginSchema = z.object({
@@ -17,11 +17,10 @@ const loginSchema = z.object({
 
 const Auth = () => {
   const [loading, setLoading] = useState(false);
-  const [userType, setUserType] = useState<'student' | 'organization'>('student');
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const handleStudentLogin = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
 
@@ -30,9 +29,12 @@ const Auth = () => {
     const password = formData.get('password') as string;
 
     try {
-  loginSchema.parse({ email, password });
+      loginSchema.parse({ email, password });
 
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
 
       if (error) throw error;
 
@@ -40,7 +42,7 @@ const Auth = () => {
         title: 'Welcome back!',
         description: 'Successfully logged in',
       });
-  navigate('/dashboard');
+      navigate('/dashboard');
     } catch (error: any) {
       toast({
         title: 'Login failed',
@@ -52,63 +54,7 @@ const Auth = () => {
     }
   };
 
-  const handleOrgLogin = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setLoading(true);
-
-    const formData = new FormData(e.currentTarget);
-    const email = formData.get('email') as string;
-    const password = formData.get('password') as string;
-
-    try {
-      loginSchema.parse({ email, password });
-
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
-
-      if (error) throw error;
-
-      toast({ title: 'Welcome back!', description: 'Organisation logged in' });
-      navigate('/admin');
-    } catch (error: any) {
-      toast({ title: 'Login failed', description: error.message || 'Invalid credentials', variant: 'destructive' });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-
-  const handleStudentSignup = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setLoading(true);
-
-    const formData = new FormData(e.currentTarget);
-    const email = formData.get('email') as string;
-    const password = formData.get('password') as string;
-
-    try {
-      loginSchema.parse({ email, password });
-
-      const { error } = await supabase.auth.signUp({ email, password, options: { emailRedirectTo: `${window.location.origin}/register` } });
-
-      if (error) throw error;
-
-      toast({
-        title: 'Account created!',
-        description: 'Please complete your profile',
-      });
-  navigate('/register');
-    } catch (error: any) {
-      toast({
-        title: 'Signup failed',
-        description: error.message || 'Could not create account',
-        variant: 'destructive',
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleOrgSignup = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSignup = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
 
@@ -124,9 +70,6 @@ const Auth = () => {
         password,
         options: {
           emailRedirectTo: `${window.location.origin}/register`,
-          data: {
-            user_type: userType,
-          },
         },
       });
 
@@ -136,9 +79,13 @@ const Auth = () => {
         title: 'Account created!',
         description: 'Please complete your profile',
       });
-      navigate(`/register?type=${userType}`);
+      navigate('/register');
     } catch (error: any) {
-      toast({ title: 'Signup failed', description: error.message || 'Could not create account', variant: 'destructive' });
+      toast({
+        title: 'Signup failed',
+        description: error.message || 'Could not create account',
+        variant: 'destructive',
+      });
     } finally {
       setLoading(false);
     }
@@ -149,46 +96,19 @@ const Auth = () => {
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">
-            {userType === 'student' ? (
-              <GraduationCap className="h-12 w-12 text-primary" />
-            ) : (
-              <Building2 className="h-12 w-12 text-primary" />
-            )}
+            <GraduationCap className="h-12 w-12 text-primary" />
           </div>
           <CardTitle className="text-2xl">Scholarship Finder</CardTitle>
-          <CardDescription>
-            {userType === 'student'
-              ? 'Find and manage your scholarship applications'
-              : 'Manage scholarships and review applications'}
-          </CardDescription>
+          <CardDescription>Find and manage your scholarship applications</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-2 gap-2 mb-6">
-            <Button
-              variant={userType === 'student' ? 'default' : 'outline'}
-              onClick={() => setUserType('student')}
-              className="w-full"
-            >
-              <GraduationCap className="h-4 w-4 mr-2" />
-              Student
-            </Button>
-            <Button
-              variant={userType === 'organization' ? 'default' : 'outline'}
-              onClick={() => setUserType('organization')}
-              className="w-full"
-            >
-              <Building2 className="h-4 w-4 mr-2" />
-              Organization
-            </Button>
-          </div>
           <Tabs defaultValue="login" className="w-full">
             <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="student-login">Student Login</TabsTrigger>
-              <TabsTrigger value="student-signup">Student Sign Up</TabsTrigger>
+              <TabsTrigger value="login">Login</TabsTrigger>
+              <TabsTrigger value="signup">Sign Up</TabsTrigger>
             </TabsList>
-
-            <TabsContent value="student-login">
-              <form onSubmit={handleStudentLogin} className="space-y-4">
+            <TabsContent value="login">
+              <form onSubmit={handleLogin} className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="login-email">Email / ABC ID</Label>
                   <Input
@@ -214,8 +134,8 @@ const Auth = () => {
                 </Button>
               </form>
             </TabsContent>
-            <TabsContent value="student-signup">
-              <form onSubmit={handleStudentSignup} className="space-y-4">
+            <TabsContent value="signup">
+              <form onSubmit={handleSignup} className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="signup-email">Email</Label>
                   <Input
@@ -241,42 +161,6 @@ const Auth = () => {
                 </Button>
               </form>
             </TabsContent>
-
-            <div className="border-t mt-4 pt-4">
-              <h3 className="text-center mb-4 font-semibold">Organisation</h3>
-              <Tabs defaultValue="org-login" className="w-full">
-                <TabsList className="grid w-full grid-cols-2">
-                  <TabsTrigger value="org-login">Org Login</TabsTrigger>
-                  <TabsTrigger value="org-signup">Org Sign Up</TabsTrigger>
-                </TabsList>
-                <TabsContent value="org-login">
-                  <form onSubmit={handleOrgLogin} className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="org-email">Organisation Email</Label>
-                      <Input id="org-email" name="email" type="email" placeholder="org@example.com" required />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="org-password">Password</Label>
-                      <Input id="org-password" name="password" type="password" placeholder="••••••••" required />
-                    </div>
-                    <Button type="submit" className="w-full" disabled={loading}>{loading ? 'Logging in...' : 'Org Login'}</Button>
-                  </form>
-                </TabsContent>
-                <TabsContent value="org-signup">
-                  <form onSubmit={handleOrgSignup} className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="org-signup-email">Organisation Email</Label>
-                      <Input id="org-signup-email" name="email" type="email" placeholder="org@example.com" required />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="org-signup-password">Password</Label>
-                      <Input id="org-signup-password" name="password" type="password" placeholder="••••••••" required />
-                    </div>
-                    <Button type="submit" className="w-full" disabled={loading}>{loading ? 'Creating account...' : 'Create Organisation Account'}</Button>
-                  </form>
-                </TabsContent>
-              </Tabs>
-            </div>
           </Tabs>
         </CardContent>
       </Card>
