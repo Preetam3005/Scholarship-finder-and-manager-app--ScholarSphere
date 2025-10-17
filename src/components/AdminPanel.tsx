@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,19 +12,34 @@ import { Plus, Trash2, Upload } from 'lucide-react';
 import { Database } from '@/integrations/supabase/types';
 
 type Scholarship = Database['public']['Tables']['scholarships']['Row'];
+type Application = Database['public']['Tables']['applications']['Row'];
+type ProfileRow = Database['public']['Tables']['profiles']['Row'];
 
 const AdminPanel = () => {
   const [scholarships, setScholarships] = useState<Scholarship[]>([]);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
   const { toast } = useToast();
+  const { user } = useAuth();
 
   useEffect(() => {
     fetchScholarships();
   }, []);
 
   const fetchScholarships = async () => {
-    const { data, error } = await supabase.from('scholarships').select('*').order('created_at', { ascending: false });
+    // If user is an org, fetch scholarships they own; otherwise fetch all (admins/view)
+    let data: Scholarship[] | null = null;
+    let error: any = null;
+
+    if (user) {
+      const qb: any = supabase.from('scholarships');
+      const res = await qb.select('*').eq('owner_id', user.id).order('created_at', { ascending: false });
+      ({ data, error } = res as { data: Scholarship[] | null; error: any });
+    } else {
+      const qb: any = supabase.from('scholarships');
+      const res = await qb.select('*').order('created_at', { ascending: false });
+      ({ data, error } = res as { data: Scholarship[] | null; error: any });
+    }
 
     if (error) {
       console.error('Error fetching scholarships:', error);
@@ -51,6 +67,7 @@ const AdminPanel = () => {
       deadline: formData.get('deadline') as string,
       link: formData.get('link') as string,
       state: formData.get('state') as string,
+      owner_id: user?.id ?? null,
     };
 
     if (editingId) {
@@ -138,6 +155,54 @@ const AdminPanel = () => {
       }
     };
     reader.readAsText(file);
+  };
+
+  // Applications management for orgs
+  const [applications, setApplications] = useState<(Application & { applicant_name?: string })[]>([]);
+
+  const fetchApplications = async () => {
+    if (!user) return;
+    // 1) fetch scholarships owned by org
+  const qbOwned: any = supabase.from('scholarships');
+  const ownedRes = await qbOwned.select('id').eq('owner_id', user.id);
+  const { data: owned, error: ownedErr } = ownedRes as { data: { id: string }[] | null; error: any };
+    if (ownedErr) {
+      console.error('Error fetching owned scholarships:', ownedErr);
+      return;
+    }
+
+    const ids = (owned || []).map((s) => s.id);
+    if (ids.length === 0) {
+      setApplications([]);
+      return;
+    }
+
+    const appsRes = await supabase.from('applications').select('*').in('scholarship_id', ids);
+    const { data: appsData, error } = appsRes as { data: Application[] | null; error: any };
+    if (error) {
+      console.error('Error fetching applications:', error);
+      return;
+    }
+
+    const apps = appsData || [];
+    // fetch applicant profiles to show names
+    const userIds = Array.from(new Set(apps.map((a) => a.user_id)));
+    const profilesRes = await supabase.from('profiles').select('id, full_name').in('id', userIds);
+    const { data: profiles } = profilesRes as { data: { id: string; full_name: string }[] | null; error: any };
+    const profileMap = new Map((profiles || []).map((p) => [p.id, p.full_name]));
+
+    const enriched = apps.map((a) => ({ ...a, applicant_name: profileMap.get(a.user_id) || a.user_id }));
+    setApplications(enriched);
+  };
+
+  const updateApplicationStatus = async (applicationId: string, status: string) => {
+    const { error } = await supabase.from('applications').update({ status }).eq('id', applicationId);
+    if (error) {
+      toast({ title: 'Error', description: 'Failed to update application', variant: 'destructive' });
+      return;
+    }
+    toast({ title: 'Updated', description: `Application ${status}` });
+    fetchApplications();
   };
 
   return (
@@ -287,6 +352,41 @@ const AdminPanel = () => {
             </CardContent>
           </Card>
         ))}
+      </div>
+
+      {/* Applications section for orgs */}
+      <div className="mt-8">
+        <h3 className="text-xl font-semibold mb-4">Applications</h3>
+        {applications.length === 0 ? (
+          <div className="text-sm text-muted-foreground">No applications yet</div>
+        ) : (
+          <div className="grid gap-4">
+            {applications.map((app) => (
+              <Card key={app.id}>
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle>{app.scholarship_id}</CardTitle>
+                      <CardDescription>Applicant: {app.applicant_name}</CardDescription>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button size="sm" onClick={() => updateApplicationStatus(app.id, 'Accepted')}>
+                        Accept
+                      </Button>
+                      <Button variant="destructive" size="sm" onClick={() => updateApplicationStatus(app.id, 'Rejected')}>
+                        Reject
+                      </Button>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm">Applied at: {new Date(app.applied_at).toLocaleString()}</p>
+                  <p className="text-sm">Status: {app.status}</p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

@@ -12,7 +12,7 @@ import AdminPanel from '@/components/AdminPanel';
 import { Database } from '@/integrations/supabase/types';
 import { seedScholarships } from '@/scripts/seedScholarships';
 
-type Profile = Database['public']['Tables']['profiles']['Row'];
+type Profile = Database['public']['Tables']['profiles']['Row'] & { is_org?: boolean };
 
 const Dashboard = () => {
   const { user, signOut } = useAuth();
@@ -80,7 +80,7 @@ const Dashboard = () => {
             <TabsTrigger value="scholarships">Scholarships</TabsTrigger>
             <TabsTrigger value="applications">My Applications</TabsTrigger>
             <TabsTrigger value="profile">Profile</TabsTrigger>
-            <TabsTrigger value="admin">Admin</TabsTrigger>
+            {profile.is_org && <TabsTrigger value="admin">Admin</TabsTrigger>}
           </TabsList>
 
           <TabsContent value="scholarships">

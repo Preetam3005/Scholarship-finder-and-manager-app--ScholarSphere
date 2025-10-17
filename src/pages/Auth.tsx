@@ -20,7 +20,7 @@ const Auth = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleStudentLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
 
@@ -29,12 +29,9 @@ const Auth = () => {
     const password = formData.get('password') as string;
 
     try {
-      loginSchema.parse({ email, password });
+  loginSchema.parse({ email, password });
 
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
 
       if (error) throw error;
 
@@ -42,7 +39,7 @@ const Auth = () => {
         title: 'Welcome back!',
         description: 'Successfully logged in',
       });
-      navigate('/dashboard');
+  navigate('/dashboard');
     } catch (error: any) {
       toast({
         title: 'Login failed',
@@ -54,7 +51,63 @@ const Auth = () => {
     }
   };
 
-  const handleSignup = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleOrgLogin = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setLoading(true);
+
+    const formData = new FormData(e.currentTarget);
+    const email = formData.get('email') as string;
+    const password = formData.get('password') as string;
+
+    try {
+      loginSchema.parse({ email, password });
+
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+
+      if (error) throw error;
+
+      toast({ title: 'Welcome back!', description: 'Organisation logged in' });
+      navigate('/admin');
+    } catch (error: any) {
+      toast({ title: 'Login failed', description: error.message || 'Invalid credentials', variant: 'destructive' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
+  const handleStudentSignup = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setLoading(true);
+
+    const formData = new FormData(e.currentTarget);
+    const email = formData.get('email') as string;
+    const password = formData.get('password') as string;
+
+    try {
+      loginSchema.parse({ email, password });
+
+      const { error } = await supabase.auth.signUp({ email, password, options: { emailRedirectTo: `${window.location.origin}/register` } });
+
+      if (error) throw error;
+
+      toast({
+        title: 'Account created!',
+        description: 'Please complete your profile',
+      });
+  navigate('/register');
+    } catch (error: any) {
+      toast({
+        title: 'Signup failed',
+        description: error.message || 'Could not create account',
+        variant: 'destructive',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleOrgSignup = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
 
@@ -69,23 +122,16 @@ const Auth = () => {
         email,
         password,
         options: {
-          emailRedirectTo: `${window.location.origin}/register`,
+          emailRedirectTo: `${window.location.origin}/register?org=true`,
         },
       });
 
       if (error) throw error;
 
-      toast({
-        title: 'Account created!',
-        description: 'Please complete your profile',
-      });
-      navigate('/register');
+      toast({ title: 'Account created!', description: 'Please complete your organisation profile' });
+      navigate('/register?org=true');
     } catch (error: any) {
-      toast({
-        title: 'Signup failed',
-        description: error.message || 'Could not create account',
-        variant: 'destructive',
-      });
+      toast({ title: 'Signup failed', description: error.message || 'Could not create account', variant: 'destructive' });
     } finally {
       setLoading(false);
     }
@@ -102,13 +148,14 @@ const Auth = () => {
           <CardDescription>Find and manage your scholarship applications</CardDescription>
         </CardHeader>
         <CardContent>
-          <Tabs defaultValue="login" className="w-full">
+          <Tabs defaultValue="student-login" className="w-full">
             <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="login">Login</TabsTrigger>
-              <TabsTrigger value="signup">Sign Up</TabsTrigger>
+              <TabsTrigger value="student-login">Student Login</TabsTrigger>
+              <TabsTrigger value="student-signup">Student Sign Up</TabsTrigger>
             </TabsList>
-            <TabsContent value="login">
-              <form onSubmit={handleLogin} className="space-y-4">
+
+            <TabsContent value="student-login">
+              <form onSubmit={handleStudentLogin} className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="login-email">Email / ABC ID</Label>
                   <Input
@@ -134,8 +181,8 @@ const Auth = () => {
                 </Button>
               </form>
             </TabsContent>
-            <TabsContent value="signup">
-              <form onSubmit={handleSignup} className="space-y-4">
+            <TabsContent value="student-signup">
+              <form onSubmit={handleStudentSignup} className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="signup-email">Email</Label>
                   <Input
@@ -161,6 +208,42 @@ const Auth = () => {
                 </Button>
               </form>
             </TabsContent>
+
+            <div className="border-t mt-4 pt-4">
+              <h3 className="text-center mb-4 font-semibold">Organisation</h3>
+              <Tabs defaultValue="org-login" className="w-full">
+                <TabsList className="grid w-full grid-cols-2">
+                  <TabsTrigger value="org-login">Org Login</TabsTrigger>
+                  <TabsTrigger value="org-signup">Org Sign Up</TabsTrigger>
+                </TabsList>
+                <TabsContent value="org-login">
+                  <form onSubmit={handleOrgLogin} className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="org-email">Organisation Email</Label>
+                      <Input id="org-email" name="email" type="email" placeholder="org@example.com" required />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="org-password">Password</Label>
+                      <Input id="org-password" name="password" type="password" placeholder="••••••••" required />
+                    </div>
+                    <Button type="submit" className="w-full" disabled={loading}>{loading ? 'Logging in...' : 'Org Login'}</Button>
+                  </form>
+                </TabsContent>
+                <TabsContent value="org-signup">
+                  <form onSubmit={handleOrgSignup} className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="org-signup-email">Organisation Email</Label>
+                      <Input id="org-signup-email" name="email" type="email" placeholder="org@example.com" required />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="org-signup-password">Password</Label>
+                      <Input id="org-signup-password" name="password" type="password" placeholder="••••••••" required />
+                    </div>
+                    <Button type="submit" className="w-full" disabled={loading}>{loading ? 'Creating account...' : 'Create Organisation Account'}</Button>
+                  </form>
+                </TabsContent>
+              </Tabs>
+            </div>
           </Tabs>
         </CardContent>
       </Card>

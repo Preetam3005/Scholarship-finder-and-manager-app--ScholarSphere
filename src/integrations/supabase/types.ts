@@ -94,6 +94,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          is_org: any
           aadhaar_number: string | null
           abc_id_number: string | null
           category: string
