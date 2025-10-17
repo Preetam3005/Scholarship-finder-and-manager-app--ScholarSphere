@@ -1,73 +1,186 @@
-# Welcome to your Lovable project
+🎓 Scholarship Finder & Manager WebApp 💡
 
-## Project info
+Live Demo: Scholarship Finder & Manager
 
-**URL**: https://lovable.dev/projects/d2f2d13f-3a2e-4dd1-a56f-0606b54b36ab
+📌 Table of Contents
 
-## How can I edit this code?
+Overview
 
-There are several ways of editing your application.
+Features
 
-**Use Lovable**
+Technology Stack
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/d2f2d13f-3a2e-4dd1-a56f-0606b54b36ab) and start prompting.
+Installation & Setup
 
-Changes made via Lovable will be committed automatically to this repo.
+Usage
 
-**Use your preferred IDE**
+AI-Based Scholarship Recommendation
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+Student Verification & Security
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+Screenshots
 
-Follow these steps:
+Future Enhancements
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+Contributing
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+License
 
-# Step 3: Install the necessary dependencies.
-npm i
+🌟 Overview
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+Scholarship Finder & Manager is a web application designed to make discovering and applying for scholarships fast, easy, and secure. Students can:
+
+Automatically find scholarships that match their eligibility
+
+Apply in just one click
+
+Download PDF summaries of their applications
+
+Verify identity through secure methods
+
+Whether you’re a student from a financially constrained background or just want to save time on scholarship applications, this app is built for you!
+
+✨ Features
+
+🎯 AI-Powered Scholarship Suggestions: Matches students with scholarships based on eligibility criteria.
+
+🖱 One-Click Applications: No repeated document uploads.
+
+📄 PDF Summaries: Download application details with status.
+
+📸 Photo Verification: Students upload their photograph for identification.
+
+🇮🇳 Indian Student Support: Optional Aadhaar, ABC ID, and income certificate verification.
+
+🔒 Secure & Authentic: Device fingerprinting prevents proxy applications.
+
+📱 Responsive Design: Works seamlessly on desktop, tablet, and mobile.
+
+🛠 Technology Stack
+
+Frontend:
+
+React.js + TypeScript
+
+TailwindCSS / Vanilla CSS
+
+Backend:
+
+Node.js + Express.js
+
+Supabase / PostgreSQL
+
+AI Recommendation:
+
+OpenAI API / Custom eligibility matching logic
+
+Other Tools:
+
+Vite for bundling
+
+Vercel for deployment
+
+GitHub for version control
+
+⚡ Installation & Setup
+
+Clone the repo
+
+git clone https://github.com/yourusername/scholarship-app.git
+cd scholarship-app
+
+
+Install dependencies
+
+npm install
+
+
+Create environment variables
+.env.local
+
+VITE_SUPABASE_URL=your-supabase-url
+VITE_SUPABASE_PUBLISHABLE_KEY=your-anon-key
+DATABASE_URL=your-database-connection-string
+OPENAI_API_KEY=your-openai-api-key
+
+
+Start the development server
+
 npm run dev
-```
 
-**Edit a file directly in GitHub**
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+Open in browser: http://localhost:8080
 
-**Use GitHub Codespaces**
+🏆 Usage
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+Register as Student: Enter details and upload photo.
 
-## What technologies are used for this project?
+Scholarship Suggestions: AI matches scholarships based on eligibility.
 
-This project is built with:
+Apply in One Click: Submit applications seamlessly.
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+Download PDF Summary: Track your applications and status.
 
-## How can I deploy this project?
+🤖 AI-Based Scholarship Recommendation
 
-Simply open [Lovable](https://lovable.dev/projects/d2f2d13f-3a2e-4dd1-a56f-0606b54b36ab) and click on Share -> Publish.
+The app uses AI to:
 
-## Can I connect a custom domain to my Lovable project?
+Analyze student eligibility: age, income, academic record, location
 
-Yes, you can!
+Suggest scholarships the student is most likely to qualify for
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+Save time and effort in searching manually
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+🔒 Student Verification & Security
+
+Photo Verification during registration
+
+Optional Aadhaar/ABC ID/Income Certificate for Indian students
+
+Device Fingerprinting to prevent proxy applications
+
+Ensures authenticity and secure submission of documents
+
+📸 Screenshots
+
+(Add actual screenshots of your app here)
+
+Homepage:
+
+
+Scholarship Suggestions:
+
+
+Application PDF Download:
+
+
+🚀 Future Enhancements
+
+Multi-language support for regional students
+
+Admin-controlled scholarship verification
+
+Improved AI suggestion engine with historical data
+
+Notification system for deadlines and status updates
+
+Integration with more national/international scholarship portals
+
+🤝 Contributing
+
+Contributions are welcome!
+
+Fork the repository
+
+Create a new branch: git checkout -b feature/your-feature
+
+Make your changes and commit: git commit -m 'Add some feature'
+
+Push to the branch: git push origin feature/your-feature
+
+Open a Pull Request
+
+📄 License
+
+This project is licensed under the MIT License – see the LICENSE
+ file for details.om-domain#custom-domain)
