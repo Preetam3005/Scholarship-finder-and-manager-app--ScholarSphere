@@ -13,6 +13,19 @@ export const sampleScholarships = [
     state: 'All India'
   },
   {
+    name: 'MyScholarship' ,
+    description: 'Scholarship for boy students pursuing technical education',
+    provider: 'AICTE',
+    eligibility: 'Male students in technical degree courses',
+    degree_level: 'Undergraduate',
+    category: ['Male', 'General', 'SC', 'ST', 'OBC'],
+    min_gpa: 6.5,
+    amount: '₹50,000 per year',
+    deadline: '2025-12-31',
+    link: 'https://aicte-pragati-saksham.gov.in/',
+    state: 'All India'
+  },
+  {
     name: 'National Scholarship Portal - Post Matric SC',
     description: 'Financial assistance for SC students pursuing post-matric education',
     provider: 'Ministry of Social Justice',
