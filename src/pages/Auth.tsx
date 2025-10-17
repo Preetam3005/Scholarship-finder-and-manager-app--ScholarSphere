@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
-import { GraduationCap } from 'lucide-react';
+import { GraduationCap, Building2 } from 'lucide-react';
 import { z } from 'zod';
 
 const loginSchema = z.object({
@@ -17,6 +17,7 @@ const loginSchema = z.object({
 
 const Auth = () => {
   const [loading, setLoading] = useState(false);
+  const [userType, setUserType] = useState<'student' | 'organization'>('student');
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -122,14 +123,20 @@ const Auth = () => {
         email,
         password,
         options: {
-          emailRedirectTo: `${window.location.origin}/register?org=true`,
+          emailRedirectTo: `${window.location.origin}/register`,
+          data: {
+            user_type: userType,
+          },
         },
       });
 
       if (error) throw error;
 
-      toast({ title: 'Account created!', description: 'Please complete your organisation profile' });
-      navigate('/register?org=true');
+      toast({
+        title: 'Account created!',
+        description: 'Please complete your profile',
+      });
+      navigate(`/register?type=${userType}`);
     } catch (error: any) {
       toast({ title: 'Signup failed', description: error.message || 'Could not create account', variant: 'destructive' });
     } finally {
@@ -142,13 +149,39 @@ const Auth = () => {
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">
-            <GraduationCap className="h-12 w-12 text-primary" />
+            {userType === 'student' ? (
+              <GraduationCap className="h-12 w-12 text-primary" />
+            ) : (
+              <Building2 className="h-12 w-12 text-primary" />
+            )}
           </div>
           <CardTitle className="text-2xl">Scholarship Finder</CardTitle>
-          <CardDescription>Find and manage your scholarship applications</CardDescription>
+          <CardDescription>
+            {userType === 'student'
+              ? 'Find and manage your scholarship applications'
+              : 'Manage scholarships and review applications'}
+          </CardDescription>
         </CardHeader>
         <CardContent>
-          <Tabs defaultValue="student-login" className="w-full">
+          <div className="grid grid-cols-2 gap-2 mb-6">
+            <Button
+              variant={userType === 'student' ? 'default' : 'outline'}
+              onClick={() => setUserType('student')}
+              className="w-full"
+            >
+              <GraduationCap className="h-4 w-4 mr-2" />
+              Student
+            </Button>
+            <Button
+              variant={userType === 'organization' ? 'default' : 'outline'}
+              onClick={() => setUserType('organization')}
+              className="w-full"
+            >
+              <Building2 className="h-4 w-4 mr-2" />
+              Organization
+            </Button>
+          </div>
+          <Tabs defaultValue="login" className="w-full">
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="student-login">Student Login</TabsTrigger>
               <TabsTrigger value="student-signup">Student Sign Up</TabsTrigger>

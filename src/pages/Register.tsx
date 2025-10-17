@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import type { TablesInsert } from '@/integrations/supabase/types';
 import { Button } from '@/components/ui/button';
@@ -22,6 +22,14 @@ const studentProfileSchema = z.object({
   nationality: z.string().min(1, 'Nationality is required'),
 });
 
+const organizationProfileSchema = z.object({
+  full_name: z.string().min(1, 'Organization name is required').max(100),
+  description: z.string().min(1, 'Description is required'),
+  contact_person: z.string().min(1, 'Contact person is required'),
+  phone: z.string().min(10, 'Valid phone number required'),
+  website: z.string().optional(),
+});
+
 const orgProfileSchema = z.object({
   full_name: z.string().min(1).max(100),
   is_org: z.literal(true),
@@ -39,6 +47,8 @@ const Register = ({ orgMode }: RegisterProps) => {
   const [photo, setPhoto] = useState<File | null>(null);
   const [incomeCert, setIncomeCert] = useState<File | null>(null);
   const [isIndian, setIsIndian] = useState(false);
+  const [searchParams] = useSearchParams();
+  const userType = searchParams.get('type') || 'student';
   const { user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -71,59 +81,20 @@ const Register = ({ orgMode }: RegisterProps) => {
 
     try {
       const formData = new FormData(e.currentTarget);
+      const data = {
+        full_name: formData.get('full_name') as string,
+        course: formData.get('course') as string,
+        department: formData.get('department') as string,
+        gpa: parseFloat(formData.get('gpa') as string),
+        category: formData.get('category') as string,
+        nationality: formData.get('nationality') as string,
+        financial_background: formData.get('financial_background') as string,
+        interests: formData.get('interests') as string,
+        aadhaar_number: formData.get('aadhaar_number') as string,
+        abc_id_number: formData.get('abc_id_number') as string,
+      };
 
-      if (isOrgRegistration) {
-        const orgData = {
-          full_name: String(formData.get('full_name') || ''),
-          is_org: true as const,
-          is_org_approved: false as const,
-          org_name: String(formData.get('org_name') || ''),
-          org_website: formData.get('org_website') ? String(formData.get('org_website')) : undefined,
-        };
-
-        orgProfileSchema.parse(orgData);
-
-        // upload org logo if present
-        let orgLogoUrl: string | null = null;
-        if (photo) {
-          const { data: uploadData, error: uploadError } = await supabase.storage.from('org-logos').upload(`${user.id}/${photo.name}`, photo, { upsert: true });
-          if (uploadError) throw uploadError;
-          const { data: publicData } = supabase.storage.from('org-logos').getPublicUrl(uploadData.path);
-          orgLogoUrl = publicData.publicUrl;
-        }
-
-        const insertPayload = {
-          id: user.id,
-          email: user.email!,
-          ...orgData,
-          // provide student-required fields with safe defaults so the generated Insert type is satisfied
-          course: '',
-          department: '',
-          gpa: 0,
-          category: 'General',
-          nationality: 'Other',
-          org_logo_url: orgLogoUrl,
-        };
-
-  const insertRes = await supabase.from('profiles').insert([insertPayload]);
-  const { error } = insertRes as { data: any[] | null; error: any };
-  if (error) throw error;
-      } else {
-        const studentData = {
-          full_name: String(formData.get('full_name') || ''),
-          course: String(formData.get('course') || ''),
-          department: String(formData.get('department') || ''),
-          gpa: Number(formData.get('gpa')),
-          category: String(formData.get('category') || ''),
-          nationality: String(formData.get('nationality') || ''),
-          financial_background: String(formData.get('financial_background') || ''),
-          interests: String(formData.get('interests') || ''),
-          aadhaar_number: formData.get('aadhaar_number') ? String(formData.get('aadhaar_number')) : null,
-          abc_id_number: formData.get('abc_id_number') ? String(formData.get('abc_id_number')) : null,
-          is_org: false,
-        };
-
-        studentProfileSchema.parse(studentData);
+      profileSchema.parse(data);
 
         let photoUrl = null;
         if (photo) {
@@ -135,7 +106,15 @@ const Register = ({ orgMode }: RegisterProps) => {
           incomeUrl = await uploadFile(incomeCert, 'documents', `${user.id}/income_${incomeCert.name}`);
         }
 
-        }
+      const { error } = await supabase.from('profiles').insert({
+        id: user.id,
+        email: user.email!,
+        ...data,
+        photo_url: photoUrl,
+        income_certificate_url: incomeUrl,
+      });
+
+      if (error) throw error;
 
       toast({
         title: 'Profile created!',
@@ -157,11 +136,60 @@ const Register = ({ orgMode }: RegisterProps) => {
     <div className="min-h-screen bg-background p-4 py-8">
       <Card className="max-w-2xl mx-auto">
         <CardHeader>
-          <CardTitle>Complete Your Profile</CardTitle>
-          <CardDescription>Fill in your details to get scholarship recommendations</CardDescription>
+          <CardTitle>
+            {userType === 'organization' ? 'Organization Profile' : 'Complete Your Profile'}
+          </CardTitle>
+          <CardDescription>
+            {userType === 'organization'
+              ? 'Fill in your organization details to start providing scholarships'
+              : 'Fill in your details to get scholarship recommendations'}
+          </CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-6">
+          {userType === 'organization' ? (
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-2 sm:col-span-2">
+                  <Label htmlFor="full_name">Organization Name *</Label>
+                  <Input id="full_name" name="full_name" required />
+                </div>
+                <div className="space-y-2 sm:col-span-2">
+                  <Label htmlFor="description">Description *</Label>
+                  <Textarea id="description" name="description" rows={3} required />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="contact_person">Contact Person *</Label>
+                  <Input id="contact_person" name="contact_person" required />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="phone">Phone Number *</Label>
+                  <Input id="phone" name="phone" type="tel" required />
+                </div>
+                <div className="space-y-2 sm:col-span-2">
+                  <Label htmlFor="website">Website</Label>
+                  <Input id="website" name="website" type="url" placeholder="https://example.com" />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="photo">Organization Logo (.jpg, .jpeg, .png)</Label>
+                <div className="flex items-center gap-2">
+                  <Input
+                    id="photo"
+                    type="file"
+                    accept=".jpg,.jpeg,.png"
+                    onChange={(e) => setPhoto(e.target.files?.[0] || null)}
+                  />
+                  <Upload className="h-4 w-4 text-muted-foreground" />
+                </div>
+              </div>
+
+              <Button type="submit" className="w-full" disabled={loading}>
+                {loading ? 'Saving...' : 'Complete Registration'}
+              </Button>
+            </form>
+          ) : (
+            <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-2">
                 <Label htmlFor="full_name">Full Name *</Label>
@@ -244,18 +272,19 @@ const Register = ({ orgMode }: RegisterProps) => {
                 <Input id="gpa" name="gpa" type="number" step="0.01" min="0" max="10" required />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="category">Category *</Label>
+                <Label htmlFor="category">I am registering as *</Label>
                 <Select name="category" required>
                   <SelectTrigger>
-                    <SelectValue placeholder="Select category" />
+                    <SelectValue placeholder="Select type" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="General">General</SelectItem>
-                    <SelectItem value="SC">SC</SelectItem>
-                    <SelectItem value="ST">ST</SelectItem>
-                    <SelectItem value="OBC">OBC</SelectItem>
-                    <SelectItem value="Minority">Minority</SelectItem>
-                    <SelectItem value="Female">Female</SelectItem>
+                    <SelectItem value="Organization">Organization/Individual (Provide Scholarships)</SelectItem>
+                    <SelectItem value="General">Student - General</SelectItem>
+                    <SelectItem value="SC">Student - SC</SelectItem>
+                    <SelectItem value="ST">Student - ST</SelectItem>
+                    <SelectItem value="OBC">Student - OBC</SelectItem>
+                    <SelectItem value="Minority">Student - Minority</SelectItem>
+                    <SelectItem value="Female">Student - Female</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -330,10 +359,11 @@ const Register = ({ orgMode }: RegisterProps) => {
               <Label htmlFor="is_org">Register as Organisation / Scholarship Provider</Label>
             </div>
 
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? 'Saving...' : 'Complete Registration'}
-            </Button>
-          </form>
+              <Button type="submit" className="w-full" disabled={loading}>
+                {loading ? 'Saving...' : 'Complete Registration'}
+              </Button>
+            </form>
+          )}
         </CardContent>
       </Card>
     </div>

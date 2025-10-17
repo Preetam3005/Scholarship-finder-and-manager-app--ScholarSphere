@@ -54,6 +54,7 @@ const AdminPanel = () => {
     const formData = new FormData(e.currentTarget);
 
     const categories = formData.get('category')?.toString().split(',').map(c => c.trim()) || [];
+    const user = await supabase.auth.getUser();
 
     const scholarshipData = {
       name: formData.get('name') as string,
@@ -67,7 +68,7 @@ const AdminPanel = () => {
       deadline: formData.get('deadline') as string,
       link: formData.get('link') as string,
       state: formData.get('state') as string,
-      owner_id: user?.id ?? null,
+      created_by: user.data.user?.id,
     };
 
     if (editingId) {
